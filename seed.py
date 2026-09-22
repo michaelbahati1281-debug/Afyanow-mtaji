@@ -23,9 +23,8 @@ from models import (
     APPT_CANCELLED, APPT_RESCHEDULED,
 )
 
-app = create_app()
-ctx = app.app_context()
-ctx.push()
+app = None
+ctx = None
 
 
 def create_user(username, email, phone, role, password, is_active=True):
@@ -37,6 +36,11 @@ def create_user(username, email, phone, role, password, is_active=True):
 
 
 def main():
+    global app, ctx
+    app = create_app()
+    ctx = app.app_context()
+    ctx.push()
+
     db.drop_all()
     db.create_all()
     print("Database reset.")
