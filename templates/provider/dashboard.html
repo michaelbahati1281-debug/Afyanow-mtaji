@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Provider Dashboard{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Welcome, {{ provider.title }} {{ provider.full_name }}</h1>
+  <p>{{ provider.speciality.name if provider.speciality else 'Specialist' }} &middot; {{ provider.facility_names() }}</p>
+</div>
+
+<div class="grid-4 mb">
+  <div class="stat-card"><div class="stat-value">{{ todays_appts|length }}</div><div class="stat-label">Today's Appointments</div></div>
+  <div class="stat-card"><div class="stat-value">{{ pending|length }}</div><div class="stat-label">Pending Requests</div></div>
+  <div class="stat-card"><div class="stat-value">{{ upcoming|length }}</div><div class="stat-label">Upcoming</div></div>
+  <div class="stat-card"><div class="stat-value">{{ history|length }}</div><div class="stat-label">Completed</div></div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Today's Appointments ({{ today.strftime('%d %b %Y') }})</h2>
+    {% if todays_appts %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>Patient</th><th>Service</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for appt in todays_appts %}
+            <tr>
+              <td>{{ appt.appointment_time }}</td>
+              <td>{{ appt.patient.full_name }}</td>
+              <td>{{ appt.service.name }}</td>
+              <td>{{ m.status_badge(appt.status) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">No appointments scheduled for today.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Pending Requests</h2>
+    {% if pending %}
+      {% for appt in pending %}
+      <div class="notification-item" style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="title">{{ appt.patient.full_name }} &middot; {{ appt.service.name }}</div>
+          <div class="small muted">{{ appt.appointment_date.strftime('%d %b %Y') }} at {{ appt.appointment_time }}</div>
+        </div>
+        <div class="form-row" style="gap:8px">
+          <form class="inline-form" method="post" action="{{ url_for('provider.accept_appointment', appointment_id=appt.id) }}">
+            {{ m.csrf() }}
+            <button class="btn btn-success btn-sm" type="submit">Accept</button>
+          </form>
+          <a class="btn btn-outline btn-sm" href="{{ url_for('provider.appointment_detail', appointment_id=appt.id) }}">View</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">No pending requests.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid mt">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Upcoming Appointments</h2>
+    {% if upcoming %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Time</th><th>Patient</th><th>Service</th></tr></thead>
+          <tbody>
+            {% for appt in upcoming %}
+            <tr>
+              <td>{{ appt.appointment_date.strftime('%d %b %Y') }}</td>
+              <td>{{ appt.appointment_time }}</td>
+              <td>{{ appt.patient.full_name }}</td>
+              <td>{{ appt.service.name }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">No upcoming appointments.</p>
+    {% endif %}
+    <p class="mt"><a class="btn btn-outline btn-sm" href="{{ url_for('provider.appointments', view='upcoming') }}">View all upcoming</a></p>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Recent Notifications</h2>
+    {% if recent_notifs %}
+      {% for n in recent_notifs %}
+      <div class="notification-item {{ 'unread' if not n.is_read }}" style="display:block">
+        <div class="title">{{ n.title }}</div>
+        <div class="small muted">{{ n.message }}</div>
+        <div class="time">{{ n.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">No notifications.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card mt">
+  <h2 class="section-title" style="margin-top:0">Appointment History</h2>
+  {% if history %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Code</th><th>Patient</th><th>Service</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for appt in history %}{{ m.appointment_row(appt) }}{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="muted">Completed appointments will appear here.</p>
+  {% endif %}
+  <p class="mt"><a class="btn btn-outline btn-sm" href="{{ url_for('provider.appointments', view='history') }}">View all history</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}User Management{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>User Management</h1>
+  <p>All accounts on the platform. Activate or deactivate users as appropriate.</p>
+</div>
+
+<div class="tabs">
+  <a href="{{ url_for('admin.users') }}" class="{{ 'active' if not filter_role }}">All</a>
+  <a href="{{ url_for('admin.users', role='patient') }}" class="{{ 'active' if filter_role == 'patient' }}">Patients</a>
+  <a href="{{ url_for('admin.users', role='provider') }}" class="{{ 'active' if filter_role == 'provider' }}">Providers</a>
+  <a href="{{ url_for('admin.users', role='admin') }}" class="{{ 'active' if filter_role == 'admin' }}">Admins</a>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.display_name() }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.phone or '&mdash;' | safe }}</td>
+        <td><span class="role-chip">{{ u.role }}</span></td>
+        <td>
+          {% if u.is_active %}<span class="status status-accepted">Active</span>
+          {% else %}<span class="status status-declined">Inactive</span>{% endif %}
+        </td>
+        <td>{{ u.created_at.strftime('%d %b %Y') }}</td>
+        <td>
+          {% if u.id != current_user.id %}
+          <form class="inline-form" method="post" action="{{ url_for('admin.toggle_user', user_id=u.id) }}">
+            {{ m.csrf() }}
+            <button class="btn btn-{{ 'danger' if u.is_active else 'success' }} btn-sm" type="submit">
+              {{ 'Deactivate' if u.is_active else 'Activate' }}
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

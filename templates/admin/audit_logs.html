@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>System Activity / Audit Logs</h1>
+  <p>Track important actions across the platform.</p>
+</div>
+
+{% if logs %}
+<div class="card">
+  <div class="table-wrap" style="max-height:520px;overflow-y:auto">
+    <table>
+      <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Details</th></tr></thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td class="small">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td class="small">{{ log.user.email if log.user else 'system' }}</td>
+          <td>{{ log.action }}</td>
+          <td class="small">{{ log.details or '&mdash;' | safe }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="empty"><div class="big">&#128220;</div><p>No audit records yet.</p></div>
+{% endif %}
+{% endblock %}

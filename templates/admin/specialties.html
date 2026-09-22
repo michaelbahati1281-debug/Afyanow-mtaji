@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Specialties{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Specialties</h1>
+  <p>Doctor specializations used across the platform.</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">All Specialties</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Description</th></tr></thead>
+        <tbody>
+          {% for s in specialties %}
+          <tr><td>{{ s.name }}</td><td class="small">{{ s.description or '&mdash;' | safe }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Add Specialty</h2>
+    <form method="post" action="{{ url_for('admin.specialties') }}">
+      {{ m.csrf() }}
+      <input type="hidden" name="action" value="create">
+      <div class="form-group">
+        <label>Specialty Name</label>
+        <input type="text" name="name" placeholder="e.g. Nephrology" required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description"></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Add Specialty</button>
+    </form>
+    <p class="form-hint mt">New services can be linked to newly added specialties.</p>
+  </div>
+</div>
+{% endblock %}

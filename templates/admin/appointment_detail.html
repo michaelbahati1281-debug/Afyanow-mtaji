@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Appointment {{ appointment.booking_code }}{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Appointment {{ appointment.booking_code }}</h1>
+  <p><a href="{{ url_for('admin.appointments') }}">&larr; Appointments</a></p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Appointment Details</h2>
+    <dl class="detail-list">
+      <dt>Current Status</dt><dd>{{ m.status_badge(appointment.status) }}</dd>
+      <dt>Patient</dt><dd>{{ appointment.patient.full_name }} ({{ appointment.patient.user.phone or 'no phone' }})</dd>
+      <dt>Service</dt><dd>{{ appointment.service.name }}</dd>
+      <dt>Healthcare Facility</dt><dd>{{ appointment.facility.name }}</dd>
+      <dt>Specialist</dt><dd>{{ appointment.provider.title }} {{ appointment.provider.full_name }}</dd>
+      <dt>Date</dt><dd>{{ appointment.appointment_date.strftime('%A, %d %b %Y') }} at {{ appointment.appointment_time }}</dd>
+      <dt>Reason</dt><dd>{{ appointment.reason_for_visit or '&mdash;' | safe }}</dd>
+      <dt>Provider Response</dt><dd>{{ appointment.provider_response or '&mdash;' | safe }}</dd>
+      <dt>Booked</dt><dd>{{ appointment.created_at.strftime('%d %b %Y, %H:%M') }}</dd>
+      <dt>Last Updated</dt><dd>{{ appointment.updated_at.strftime('%d %b %Y, %H:%M') }}</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Status History</h2>
+    <ul class="timeline">
+      {% for h in appointment.status_history %}
+      <li>
+        <strong class="status status-{{ h.status }}">{{ h.status }}</strong>
+        <div class="small muted">{{ h.note or '' }} &middot; by {{ h.changed_by_role or 'system' }}</div>
+        <div class="time">{{ h.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+      </li>
+      {% else %}
+      <li class="muted">No history recorded.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

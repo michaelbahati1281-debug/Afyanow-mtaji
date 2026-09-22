@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>My Profile</h1>
+  <p>Manage your personal information.</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="avatar" style="display:inline-flex;margin-bottom:12px">{{ patient.full_name[:1] }}</div>
+    <h2>{{ patient.full_name }}</h2>
+    <p class="muted">{{ current_user.email }} &middot; {{ current_user.phone or 'No phone' }}</p>
+    <hr class="divider">
+    <dl class="detail-list">
+      <dt>Username</dt><dd>{{ current_user.username }}</dd>
+      <dt>Gender</dt><dd>{{ patient.gender or '&mdash;' | safe }}</dd>
+      <dt>Date of Birth</dt><dd>{{ patient.date_of_birth.strftime('%d %b %Y') if patient.date_of_birth else '&mdash;' | safe }}</dd>
+      <dt>Address</dt><dd>{{ patient.address or '&mdash;' | safe }}</dd>
+      <dt>Emergency Contact</dt><dd>{{ patient.emergency_contact or '&mdash;' | safe }}</dd>
+      <dt>Member Since</dt><dd>{{ current_user.created_at.strftime('%d %b %Y') }}</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Edit Profile</h2>
+    <form method="post" action="{{ url_for('patient.profile') }}">
+      {{ m.csrf() }}
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="full_name" value="{{ patient.full_name }}" required>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" value="{{ current_user.username }}">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" name="phone" value="{{ current_user.phone or '' }}">
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" name="date_of_birth" value="{{ patient.date_of_birth.isoformat() if patient.date_of_birth else '' }}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Gender</label>
+        <select name="gender">
+          <option value="Female" {% if patient.gender == 'Female' %}selected{% endif %}>Female</option>
+          <option value="Male" {% if patient.gender == 'Male' %}selected{% endif %}>Male</option>
+          <option value="Other" {% if patient.gender == 'Other' %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Address</label>
+        <input type="text" name="address" value="{{ patient.address or '' }}">
+      </div>
+      <div class="form-group">
+        <label>Emergency Contact</label>
+        <input type="text" name="emergency_contact" value="{{ patient.emergency_contact or '' }}">
+      </div>
+      <button class="btn btn-primary" type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

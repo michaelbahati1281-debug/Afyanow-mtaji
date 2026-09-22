@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}System Settings{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>System Settings</h1>
+  <p>Demo settings screen. In production these values map to environment configuration.</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">General</h2>
+    <form method="post" action="{{ url_for('admin.settings') }}">
+      {{ m.csrf() }}
+      <div class="form-group">
+        <label>Platform Name</label>
+        <input type="text" name="app_name" value="AfyaNow">
+      </div>
+      <div class="form-group">
+        <label>Appointment Slot Length (minutes)</label>
+        <input type="number" value="30" readonly>
+        <p class="form-hint">Slots are generated in 30-minute increments (configurable in production).</p>
+      </div>
+      <button class="btn btn-primary" type="submit">Save Settings</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Security Notes</h2>
+    <ul style="padding-left:20px" class="small muted">
+      <li>Passwords are hashed with Werkzeug (never stored in plaintext).</li>
+      <li>Session-based authentication with Flask-Login.</li>
+      <li>Role-based authorization on every endpoint (<code>/admin/*</code>, <code>/provider/*</code>, <code>/patient/*</code>).</li>
+      <li>CSRF protection enabled on all POST forms.</li>
+      <li>Patients can only access their own appointments and profile.</li>
+    </ul>
+    <hr class="divider">
+    <p class="small muted"><strong>Production checklist:</strong> set a strong <code>SECRET_KEY</code> environment variable, use HTTPS, and use a production WSGI server (e.g. gunicorn/waitress).</p>
+  </div>
+</div>
+{% endblock %}

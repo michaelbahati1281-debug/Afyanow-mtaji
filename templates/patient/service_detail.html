@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ service.name }}{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>{{ service.name }}</h1>
+  <p>{{ service.description or 'Specialized medical service.' }}</p>
+</div>
+
+<h2 class="section-title">Healthcare Facilities offering {{ service.name }}</h2>
+{% if facilities %}
+<div class="grid">
+  {% for item in facilities %}
+  <a class="card" href="{{ url_for('patient.facility_detail', facility_id=item.facility.id, service_id=service.id) }}" style="display:block">
+    <h3 style="color:var(--primary-dark)">{{ item.facility.name }}</h3>
+    <p class="small muted">{{ item.facility.city or '' }} &middot; {{ item.facility.address or '' }}</p>
+    <p><span class="status status-accepted">{{ item.providers }} specialist(s)</span> offering {{ service.name }}</p>
+    <p class="small muted">Available appointments &rarr;</p>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty"><div class="big">&#128194;</div><p>No facilities currently offer this service.</p></div>
+{% endif %}
+
+<h2 class="section-title">All {{ service.name }} Specialists</h2>
+{% if providers %}
+<div class="grid">
+  {% for p in service.providers %}
+  <div class="card">
+    <div class="avatar" style="float:none;display:inline-flex;margin-bottom:10px">{{ p.full_name[:1] }}</div>
+    <h3>{{ p.title }} {{ p.full_name }}</h3>
+    <p class="small muted">{{ p.speciality.name if p.speciality else 'Specialist' }} &middot; {{ p.experience_years }} years experience</p>
+    <p class="small">{{ p.facility_names() }}</p>
+    <a class="btn btn-primary btn-sm mt" href="{{ url_for('patient.specialist_detail', provider_id=p.id) }}">View Profile</a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted">No specialists found.</p>
+{% endif %}
+{% endblock %}

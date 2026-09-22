@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Patient Registration{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <div class="card">
+    <h1>Patient Registration</h1>
+    <p class="muted mb">Create your account to book specialized healthcare appointments.</p>
+
+    <form method="post" action="{{ url_for('auth.register') }}">
+      {{ m.csrf() }}
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input type="text" id="full_name" name="full_name" placeholder="e.g. Alice Wanjiru" required
+               value="{{ form.get('full_name', '') if form else '' }}">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required
+                 value="{{ form.get('email', '') if form else '' }}">
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="+2547..." required
+                 value="{{ form.get('phone', '') if form else '' }}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender">
+            <option value="">Select...</option>
+            <option value="Female" {% if form and form.get('gender') == 'Female' %}selected{% endif %}>Female</option>
+            <option value="Male" {% if form and form.get('gender') == 'Male' %}selected{% endif %}>Male</option>
+            <option value="Other" {% if form and form.get('gender') == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="date_of_birth">Date of Birth</label>
+          <input type="date" id="date_of_birth" name="date_of_birth"
+                 value="{{ form.get('date_of_birth', '') if form else '' }}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="At least 6 characters" required>
+        </div>
+        <div class="form-group">
+          <label for="confirm_password">Confirm Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Register</button>
+    </form>
+
+    <p class="mt text-center muted small">
+      Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}My Appointments{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>My Appointments</h1>
+  <p>View and manage all your appointment requests.</p>
+</div>
+
+<div class="tabs">
+  <a href="{{ url_for('patient.my_appointments') }}" class="{{ 'active' if not status }}">All</a>
+  {% for s in APPT_STATUSES %}
+    <a href="{{ url_for('patient.my_appointments', status=s) }}" class="{{ 'active' if status == s }}">{{ s }}</a>
+  {% endfor %}
+</div>
+
+{% if appointments %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Code</th><th>Service</th><th>Specialist</th><th>Facility</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for appt in appointments %}
+      <tr>
+        <td>{{ appt.booking_code }}</td>
+        <td>{{ appt.service.name }}</td>
+        <td>{{ appt.provider.title }} {{ appt.provider.full_name }}</td>
+        <td>{{ appt.facility.name }}</td>
+        <td>{{ appt.appointment_date.strftime('%d %b %Y') }}</td>
+        <td>{{ appt.appointment_time }}</td>
+        <td>{{ m.status_badge(appt.status) }}</td>
+        <td><a class="btn btn-outline btn-sm" href="{{ url_for('patient.appointment_detail', appointment_id=appt.id) }}">Details</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty"><div class="big">&#128197;</div><p>No appointments found.</p>
+  <a class="btn btn-primary" href="{{ url_for('patient.services') }}">Book an appointment</a>
+</div>
+{% endif %}
+{% endblock %}

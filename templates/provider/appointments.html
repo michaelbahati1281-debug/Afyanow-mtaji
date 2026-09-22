@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Appointments</h1>
+  <p>Review, accept, decline, reschedule and complete appointment requests.</p>
+</div>
+
+<div class="tabs">
+  <a href="{{ url_for('provider.appointments') }}" class="{{ 'active' if view == 'all' and not status }}">All</a>
+  <a href="{{ url_for('provider.appointments', view='upcoming') }}" class="{{ 'active' if view == 'upcoming' }}">Upcoming</a>
+  <a href="{{ url_for('provider.appointments', view='history') }}" class="{{ 'active' if view == 'history' }}">History</a>
+  {% for s in APPT_STATUSES %}
+    <a href="{{ url_for('provider.appointments', status=s) }}" class="{{ 'active' if status == s }}">{{ s }}s</a>
+  {% endfor %}
+</div>
+
+{% if appointments %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Code</th><th>Patient</th><th>Service</th><th>Facility</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for appt in appointments %}
+      <tr>
+        <td>{{ appt.booking_code }}</td>
+        <td>{{ appt.patient.full_name }}</td>
+        <td>{{ appt.service.name }}</td>
+        <td>{{ appt.facility.name }}</td>
+        <td>{{ appt.appointment_date.strftime('%d %b %Y') }}</td>
+        <td>{{ appt.appointment_time }}</td>
+        <td>{{ m.status_badge(appt.status) }}</td>
+        <td>
+          <a class="btn btn-outline btn-sm" href="{{ url_for('provider.appointment_detail', appointment_id=appt.id) }}">Open</a>
+          {% if appt.status == 'pending' %}
+          <form class="inline-form" method="post" action="{{ url_for('provider.accept_appointment', appointment_id=appt.id) }}">
+            {{ m.csrf() }}
+            <button class="btn btn-success btn-sm" type="submit">Accept</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty"><div class="big">&#128197;</div><p>No appointments found.</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Administrator Dashboard</h1>
+  <p>System overview and live state of the AfyaNow platform.</p>
+</div>
+
+<h2 class="section-title">System Overview</h2>
+<div class="grid-4 mb">
+  <div class="stat-card"><div class="stat-value">{{ stats.patients }}</div><div class="stat-label">Total Patients</div></div>
+  <div class="stat-card"><div class="stat-value">{{ stats.providers }}</div><div class="stat-label">Healthcare Providers</div></div>
+  <div class="stat-card"><div class="stat-value">{{ stats.facilities }}</div><div class="stat-label">Facilities</div></div>
+  <div class="stat-card"><div class="stat-value">{{ stats.services }}</div><div class="stat-label">Specialized Services</div></div>
+</div>
+
+<h2 class="section-title">Appointments</h2>
+<div class="grid-3 mb">
+  <div class="stat-card"><div class="stat-value" style="color:#92400e">{{ counts.pending }}</div><div class="stat-label">Pending</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#065f46">{{ counts.accepted }}</div><div class="stat-label">Accepted</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#1e40af">{{ counts.completed }}</div><div class="stat-label">Completed</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#334155">{{ counts.cancelled }}</div><div class="stat-label">Cancelled</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#991b1b">{{ counts.declined }}</div><div class="stat-label">Declined</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#5b21b6">{{ counts.rescheduled }}</div><div class="stat-label">Rescheduled</div></div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Recent Appointments</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Code</th><th>Patient</th><th>Service</th><th>Specialist</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for appt in recent_appts %}
+          <tr>
+            <td><a href="{{ url_for('admin.appointment_detail', appointment_id=appt.id) }}">{{ appt.booking_code }}</a></td>
+            <td>{{ appt.patient.full_name }}</td>
+            <td>{{ appt.service.name }}</td>
+            <td>{{ appt.provider.title }} {{ appt.provider.full_name }}</td>
+            <td>{{ appt.appointment_date.strftime('%d %b %Y') }}</td>
+            <td>{{ m.status_badge(appt.status) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Recent Activity (Audit)</h2>
+    <ul class="timeline">
+      {% for log in recent_audits %}
+      <li>
+        <strong class="small">{{ log.action }}</strong>
+        <div class="small muted">{{ log.details or '' }}</div>
+        <div class="time">{{ log.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+      </li>
+      {% else %}
+      <li class="muted">No activity recorded.</li>
+      {% endfor %}
+    </ul>
+    <p class="mt"><a class="btn btn-outline btn-sm" href="{{ url_for('admin.audit_logs') }}">View all audit logs</a></p>
+  </div>
+</div>
+
+<div class="grid-3 mt">
+  <a class="card" href="{{ url_for('admin.patients') }}" style="display:block"><h3>Manage Patients</h3><p class="small muted">View and manage patient accounts.</p></a>
+  <a class="card" href="{{ url_for('admin.providers') }}" style="display:block"><h3>Manage Providers</h3><p class="small muted">Create specialists, assign facilities, services and availability.</p></a>
+  <a class="card" href="{{ url_for('admin.services') }}" style="display:block"><h3>Manage Services</h3><p class="small muted">Add, edit and deactivate specialized services.</p></a>
+  <a class="card" href="{{ url_for('admin.facilities') }}" style="display:block"><h3>Manage Facilities</h3><p class="small muted">Create and maintain healthcare facilities.</p></a>
+  <a class="card" href="{{ url_for('admin.notifications') }}" style="display:block"><h3>Send Notifications</h3><p class="small muted">Notify patients, providers or everyone.</p></a>
+  <a class="card" href="{{ url_for('admin.reports') }}" style="display:block"><h3>Reports</h3><p class="small muted">Appointments by status, service and facility.</p></a>
+</div>
+{% endblock %}

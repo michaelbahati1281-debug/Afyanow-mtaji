@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Services{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Specialized Service Management</h1>
+  <p>Add, edit, activate and deactivate specialized medical services.</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">All Services</h2>
+    {% if services %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Specialty</th><th>Providers</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {% for s in services %}
+          <tr>
+            <td><a href="{{ url_for('admin.edit_service', service_id=s.id) }}">{{ s.name }}</a></td>
+            <td>{{ s.specialty.name if s.specialty else '&mdash;' | safe }}</td>
+            <td>{{ s.provider_count() }}</td>
+            <td>{% if s.is_active %}<span class="status status-accepted">Active</span>{% else %}<span class="status status-declined">Inactive</span>{% endif %}</td>
+            <td>
+              <a class="btn btn-outline btn-sm" href="{{ url_for('admin.edit_service', service_id=s.id) }}">Edit</a>
+              <form class="inline-form" method="post" action="{{ url_for('admin.toggle_service', service_id=s.id) }}">
+                {{ m.csrf() }}
+                <button class="btn btn-{{ 'danger' if s.is_active else 'success' }} btn-sm" type="submit">
+                  {{ 'Deactivate' if s.is_active else 'Activate' }}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="muted">No services yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Add Service</h2>
+    <form method="post" action="{{ url_for('admin.services') }}">
+      {{ m.csrf() }}
+      <input type="hidden" name="action" value="create">
+      <div class="form-group">
+        <label>Service Name</label>
+        <input type="text" name="name" placeholder="e.g. Gastroenterology" required>
+      </div>
+      <div class="form-group">
+        <label>Linked Specialty</label>
+        <select name="specialty_id">
+          <option value="">None or create specialty below</option>
+          {% for s in specialties %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" placeholder="What does this service cover?"></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Add Service</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

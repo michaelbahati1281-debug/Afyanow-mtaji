@@ -1,0 +1,19 @@
+{% macro status_badge(status) -%}
+  <span class="status status-{{ status }}">{{ status }}</span>
+{%- endmacro %}
+
+{% macro appointment_row(appt) -%}
+<tr>
+  <td>{{ appt.booking_code }}</td>
+  <td>{{ appt.service.name }}</td>
+  <td>{{ appt.provider.title }} {{ appt.provider.full_name }}</td>
+  <td>{{ appt.facility.name }}</td>
+  <td>{{ appt.appointment_date.strftime('%d %b %Y') }}</td>
+  <td>{{ appt.appointment_time }}</td>
+  <td>{{ status_badge(appt.status) }}</td>
+</tr>
+{%- endmacro %}
+
+{% macro csrf() -%}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{%- endmacro %}

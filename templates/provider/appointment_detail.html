@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Appointment {{ appointment.booking_code }}{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Appointment {{ appointment.booking_code }}</h1>
+  <p><a href="{{ url_for('provider.appointments') }}">&larr; Appointments</a></p>
+</div>
+
+{% with %}
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Appointment Details</h2>
+    <dl class="detail-list">
+      <dt>Status</dt><dd>{{ m.status_badge(appointment.status) }}</dd>
+      <dt>Patient</dt><dd>{{ appointment.patient.full_name }}
+        <span class="small muted">({{ appointment.patient.gender or 'n/a' }},
+        {{ appointment.patient.date_of_birth.strftime('%d %b %Y') if appointment.patient.date_of_birth else 'n/a' }})</span>
+      </dd>
+      <dt>Phone</dt><dd>{{ appointment.patient.user.phone or '&mdash;' | safe }}</dd>
+      <dt>Service</dt><dd>{{ appointment.service.name }}</dd>
+      <dt>Facility</dt><dd>{{ appointment.facility.name }}</dd>
+      <dt>Date</dt><dd>{{ appointment.appointment_date.strftime('%A, %d %b %Y') }}</dd>
+      <dt>Time</dt><dd>{{ appointment.appointment_time }}</dd>
+      <dt>Reason for Visit</dt><dd>{{ appointment.reason_for_visit or '&mdash;' | safe }}</dd>
+      <dt>Provider Response</dt><dd>{{ appointment.provider_response or '&mdash;' | safe }}</dd>
+      {% if appointment.original_date %}
+        <dt>Previous Time</dt><dd>{{ appointment.original_date.strftime('%d %b %Y') }} at {{ appointment.original_time }}</dd>
+      {% endif %}
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Actions</h2>
+
+    {% if appointment.status == 'pending' %}
+      <form method="post" action="{{ url_for('provider.accept_appointment', appointment_id=appointment.id) }}" class="mb">
+        {{ m.csrf() }}
+        <p class="form-hint mb">Accept this appointment. The patient will be notified immediately.</p>
+        <button class="btn btn-success btn-block" type="submit">&#10004; Accept Appointment</button>
+      </form>
+
+      <form method="post" action="{{ url_for('provider.decline_appointment', appointment_id=appointment.id) }}">
+        {{ m.csrf() }}
+        <label for="decline_reason">Decline Reason (required)</label>
+        <textarea name="reason" id="decline_reason" placeholder="e.g. Specialist unavailable that day. Please rebook." required></textarea>
+        <button class="btn btn-danger btn-block mt" type="submit">&#10006; Decline Appointment</button>
+      </form>
+
+    {% elif appointment.status in ['accepted', 'rescheduled'] %}
+      <form method="post" action="{{ url_for('provider.complete_appointment', appointment_id=appointment.id) }}" class="mb">
+        {{ m.csrf() }}
+        <p class="form-hint mb">Mark this appointment as completed after the patient visit.</p>
+        <button class="btn btn-info btn-block" type="submit">Mark as Completed</button>
+      </form>
+
+      <hr class="divider">
+      <h3 class="section-title" style="margin-top:0">Reschedule Appointment</h3>
+      <form method="post" action="{{ url_for('provider.reschedule_appointment', appointment_id=appointment.id) }}">
+        {{ m.csrf() }}
+        <div class="form-row">
+          <div class="form-group">
+            <label>New Date</label>
+            <input type="date" name="new_date" required min="{{ appointment.appointment_date.isoformat() }}">
+          </div>
+          <div class="form-group">
+            <label>New Time</label>
+            <select name="new_time" required>
+              <option value="">Select...</option>
+              <option>08:00</option><option>08:30</option><option>09:00</option>
+              <option>09:30</option><option>10:00</option><option>10:30</option>
+              <option>11:00</option><option>11:30</option><option>12:00</option>
+              <option>12:30</option><option>13:00</option><option>13:30</option>
+              <option>14:00</option><option>14:30</option><option>15:00</option>
+              <option>15:30</option><option>16:00</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-warning" type="submit">Reschedule &amp; Notify Patient</button>
+      </form>
+
+    {% elif appointment.status == 'declined' %}
+      <p class="form-hint">This request was declined. Reason: {{ appointment.provider_response or 'n/a' }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endwith %}
+
+<div class="card mt">
+  <h2 class="section-title" style="margin-top:0">Status History</h2>
+  <ul class="timeline">
+    {% for h in appointment.status_history %}
+    <li>
+      <strong class="status status-{{ h.status }}">{{ h.status }}</strong>
+      <div class="small muted">{{ h.note or '' }} &middot; by {{ h.changed_by_role or 'system' }}</div>
+      <div class="time">{{ h.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+    </li>
+    {% else %}
+    <li class="muted">No history recorded.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

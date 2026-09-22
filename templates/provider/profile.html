@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>My Profile</h1>
+  <p>Official professional information is managed by the administrator. Contact the admin to update credentials, qualifications or bio.</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="avatar" style="display:inline-flex;margin-bottom:12px">{{ provider.full_name[:1] }}</div>
+    <h2>{{ provider.title }} {{ provider.full_name }}</h2>
+    <p class="muted">{{ provider.speciality.name if provider.speciality else 'Specialist' }}</p>
+    <hr class="divider">
+    <dl class="detail-list">
+      <dt>Qualifications</dt><dd>{{ provider.qualifications or '&mdash;' | safe }}</dd>
+      <dt>Experience</dt><dd>{{ provider.experience_years }} years</dd>
+      <dt>License No.</dt><dd>{{ provider.license_number or '&mdash;' | safe }}</dd>
+      <dt>Services</dt><dd>{{ provider.service_names() or '&mdash;' | safe }}</dd>
+      <dt>Facilities</dt><dd>{{ provider.facility_names() or '&mdash;' | safe }}</dd>
+      <dt>Email</dt><dd>{{ current_user.email }}</dd>
+      <dt>Bio</dt><dd>{{ provider.bio or '&mdash;' | safe }}</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Edit Contact Details</h2>
+    <form method="post" action="{{ url_for('provider.profile') }}">
+      {{ m.csrf() }}
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="full_name" value="{{ provider.full_name }}" required>
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" name="phone" value="{{ current_user.phone or '' }}">
+      </div>
+      <button class="btn btn-primary" type="submit">Save Changes</button>
+    </form>
+    <p class="form-hint mt">Change your working schedule on the <a href="{{ url_for('provider.availability') }}">Availability</a> page.</p>
+  </div>
+</div>
+{% endblock %}

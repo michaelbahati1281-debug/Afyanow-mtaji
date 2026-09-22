@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Edit Facility{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Edit Facility</h1>
+  <p><a href="{{ url_for('admin.facilities') }}">&larr; Facilities</a></p>
+</div>
+
+<div class="card" style="max-width:640px">
+  <form method="post" action="{{ url_for('admin.edit_facility', facility_id=facility.id) }}">
+    {{ m.csrf() }}
+    <div class="form-group">
+      <label>Facility Name</label>
+      <input type="text" name="name" value="{{ facility.name }}" required>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>City</label>
+        <input type="text" name="city" value="{{ facility.city or '' }}">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" name="phone" value="{{ facility.phone or '' }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Address</label>
+      <input type="text" name="address" value="{{ facility.address or '' }}">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" name="email" value="{{ facility.email or '' }}">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea name="description">{{ facility.description or '' }}</textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Save Changes</button>
+  </form>
+  <hr class="divider">
+  <form class="confirm-form" data-confirm="Delete this facility permanently?" method="post"
+        action="{{ url_for('admin.delete_facility', facility_id=facility.id) }}">
+    {{ m.csrf() }}
+    <button class="btn btn-danger" type="submit">Delete Facility</button>
+  </form>
+</div>
+{% endblock %}

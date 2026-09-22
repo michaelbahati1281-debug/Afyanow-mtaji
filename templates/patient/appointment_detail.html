@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Appointment {{ appointment.booking_code }}{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Appointment {{ appointment.booking_code }}</h1>
+  <p><a href="{{ url_for('patient.my_appointments') }}">&larr; My Appointments</a></p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Appointment Details</h2>
+    <dl class="detail-list">
+      <dt>Status</dt><dd>{{ m.status_badge(appointment.status) }}</dd>
+      <dt>Service</dt><dd>{{ appointment.service.name }}</dd>
+      <dt>Specialist</dt><dd>{{ appointment.provider.title }} {{ appointment.provider.full_name }}</dd>
+      <dt>Facility</dt><dd>{{ appointment.facility.name }} ({{ appointment.facility.city or '' }})</dd>
+      <dt>Date</dt><dd>{{ appointment.appointment_date.strftime('%A, %d %b %Y') }}</dd>
+      <dt>Time</dt><dd>{{ appointment.appointment_time }}</dd>
+      <dt>Reason</dt><dd>{{ appointment.reason_for_visit or '&mdash;' | safe }}</dd>
+      <dt>Provider Response</dt><dd>{{ appointment.provider_response or 'Waiting for provider response.' }}</dd>
+      {% if appointment.original_date %}
+        <dt>Previous Time</dt><dd>{{ appointment.original_date.strftime('%d %b %Y') }} at {{ appointment.original_time }}</dd>
+      {% endif %}
+      <dt>Requested</dt><dd>{{ appointment.created_at.strftime('%d %b %Y, %H:%M') }}</dd>
+    </dl>
+
+    {% if appointment.status in ['pending', 'accepted'] %}
+    <hr class="divider">
+    <div class="form-row">
+      <form class="confirm-form" data-confirm="Cancel this appointment?" method="post"
+            action="{{ url_for('patient.cancel_appointment', appointment_id=appointment.id) }}">
+        {{ m.csrf() }}
+        <input type="hidden" name="reason" value="Cancelled by patient">
+        <button class="btn btn-danger btn-block" type="submit">Cancel Appointment</button>
+      </form>
+      {% if appointment.status == 'accepted' %}
+      <button class="btn btn-warning btn-block" type="button" onclick="document.getElementById('reschedule-box').toggleAttribute('hidden')">Request Reschedule</button>
+      {% endif %}
+    </div>
+
+    {% if appointment.status == 'accepted' %}
+    <div id="reschedule-box" hidden class="card" style="margin-top:12px;background:var(--bg)">
+      <h3 class="section-title" style="margin-top:0">Request New Time</h3>
+      <form method="post" action="{{ url_for('patient.reschedule_appointment', appointment_id=appointment.id) }}">
+        {{ m.csrf() }}
+        <div class="form-row">
+          <div class="form-group">
+            <label>New Date</label>
+            <input type="date" name="new_date" required min="{{ appointment.appointment_date.isoformat() }}">
+          </div>
+          <div class="form-group">
+            <label>New Time</label>
+            <select name="new_time">
+              {% for a in appointment.provider.availability %}
+                {% if appointment.appointment_date.weekday() == a.day_week %}
+                  <option value="">{{ a.start_time }} - {{ a.end_time }} (select time)</option>
+                {% endif %}
+              {% endfor %}
+              <option value="">08:00</option><option>08:30</option><option>09:00</option>
+              <option>09:30</option><option>10:00</option><option>10:30</option>
+              <option>11:00</option><option>11:30</option><option>12:00</option>
+              <option>12:30</option><option>13:00</option><option>13:30</option>
+              <option>14:00</option><option>14:30</option><option>15:00</option>
+              <option>15:30</option><option>16:00</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-warning" type="submit">Send Reschedule Request</button>
+      </form>
+    </div>
+    {% endif %}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Status History</h2>
+    <ul class="timeline">
+      {% for h in appointment.status_history %}
+      <li>
+        <strong class="status status-{{ h.status }}">{{ h.status }}</strong>
+        <div class="small muted">{{ h.note or '' }} &middot; by {{ h.changed_by_role or 'system' }}</div>
+        <div class="time">{{ h.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+      </li>
+      {% else %}
+      <li class="muted">No history recorded yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

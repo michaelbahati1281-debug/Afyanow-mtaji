@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Services{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Specialized Medical Services</h1>
+  <p>Browse specialized services, then find facilities and specialists who provide them.</p>
+</div>
+
+<form class="search-bar" method="get" action="{{ url_for('patient.services') }}">
+  <input type="text" name="q" placeholder="Search e.g. Cardiology, Neurology, Dentistry..." value="{{ q }}">
+  <button class="btn btn-primary" type="submit">Search</button>
+</form>
+
+{% if services %}
+<div class="grid">
+  {% for s in services %}
+  <a href="{{ url_for('patient.service_detail', service_id=s.id) }}" class="feature" style="display:block">
+    <h3>{{ s.name }}</h3>
+    <p>{{ s.description or 'Specialized medical service.' }}</p>
+    <p class="small muted">{{ s.provider_count() }} specialist(s) offering this service</p>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <div class="big">&#128269;</div>
+  <p>No services found. Try a different search.</p>
+</div>
+{% endif %}
+{% endblock %}

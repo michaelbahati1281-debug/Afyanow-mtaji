@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Notifications</h1>
+  <p>Updates about appointment requests and patient activity.</p>
+  <form method="post" action="{{ url_for('provider.mark_all_read') }}" class="mt">
+    {{ m.csrf() }}
+    <button class="btn btn-outline btn-sm" type="submit">Mark all as read</button>
+  </form>
+</div>
+
+{% if notifications %}
+  {% for n in notifications %}
+  <div class="notification-item {{ 'unread' if not n.is_read }}">
+    <div style="font-size:1.3rem">&#128276;</div>
+    <div style="flex:1">
+      <div class="title">{{ n.title }}</div>
+      <div class="small muted">{{ n.message }}</div>
+      <div class="time">{{ n.created_at.strftime('%d %b %Y, %H:%M') }} &middot;
+        <span class="role-chip" style="font-size:.7rem">{{ n.ntype }}</span>
+        {% if not n.is_read %}
+          <form class="inline-form" method="post" action="{{ url_for('provider.mark_note_read', note_id=n.id) }}">
+            {{ m.csrf() }}
+            <button class="btn btn-sm btn-ghost" type="submit">Mark read</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+<div class="empty"><div class="big">&#128276;</div><p>No notifications.</p></div>
+{% endif %}
+{% endblock %}

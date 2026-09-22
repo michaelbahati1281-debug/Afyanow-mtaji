@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <img src="{{ url_for('static', filename='images/loginlogo.png') }}" alt="loginlogo Image" />
+  </div>
+  <h1>Specialized Healthcare, One Platform</h1>
+  <p>Discover specialized medical services, view healthcare facilities and specialists, and book
+     appointments online &mdash; all in one place.</p>
+  <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">Login</a>
+  <a href="{{ url_for('auth.register') }}" class="btn btn-outline btn-lg">Patient Registration</a>
+
+  <div class="landing-stats">
+    <div class="landing-stat"><div class="n">{{ stats.services }}</div><div class="l">Specialized Services</div></div>
+    <div class="landing-stat"><div class="n">{{ stats.providers }}</div><div class="l">Specialists</div></div>
+    <div class="landing-stat"><div class="n">{{ stats.facilities }}</div><div class="l">Facilities</div></div>
+    <div class="landing-stat"><div class="n">{{ stats.specialties }}</div><div class="l">Specialties</div></div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title text-center">How it works</h2>
+  <div class="features">
+    <div class="feature">
+      <h3>1. Find a Service</h3>
+      <p>Search specialized medical services such as Cardiology, Neurology or Dentistry.</p>
+    </div>
+    <div class="feature">
+      <h3>2. Choose Specialist</h3>
+      <p>View facilities that offer the service, then compare specialists, profiles and availability.</p>
+    </div>
+    <div class="feature">
+      <h3>3. Book &amp; Track</h3>
+      <p>Book a time slot and follow your appointment from pending to accepted to completed.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

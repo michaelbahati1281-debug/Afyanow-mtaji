@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Edit Service{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Edit Service</h1>
+  <p><a href="{{ url_for('admin.services') }}">&larr; Services</a></p>
+</div>
+
+<div class="card" style="max-width:640px">
+  <form method="post" action="{{ url_for('admin.edit_service', service_id=service.id) }}">
+    {{ m.csrf() }}
+    <div class="form-group">
+      <label>Service Name</label>
+      <input type="text" name="name" value="{{ service.name }}" required>
+    </div>
+    <div class="form-group">
+      <label>Linked Specialty</label>
+      <select name="specialty_id">
+        <option value="">None</option>
+        {% for s in specialties %}
+        <option value="{{ s.id }}" {% if service.specialty_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea name="description">{{ service.description or '' }}</textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Save Changes</button>
+  </form>
+  <hr class="divider">
+  <form class="confirm-form" data-confirm="Delete this service permanently?" method="post"
+        action="{{ url_for('admin.delete_service', service_id=service.id) }}">
+    {{ m.csrf() }}
+    <button class="btn btn-danger" type="submit">Delete Service</button>
+  </form>
+</div>
+{% endblock %}

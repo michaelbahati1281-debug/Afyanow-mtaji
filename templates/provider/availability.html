@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Availability / Schedule{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Availability &amp; Working Schedule</h1>
+  <p>Manage the days and hours patients can book with you.</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Current Schedule</h2>
+    {% if provider.availability %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Day</th><th>Hours</th><th></th></tr></thead>
+        <tbody>
+          {% for a in provider.availability %}
+          <tr>
+            <td>{{ DAYS[a.day_week] }}</td>
+            <td>{{ a.start_time }} &ndash; {{ a.end_time }}</td>
+            <td>
+              <form class="inline-form" method="post" action="{{ url_for('provider.availability') }}">
+                {{ m.csrf() }}
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="slot_id" value="{{ a.id }}">
+                <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="muted">No availability configured yet. Patients cannot book appointments until you add availability.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Add Availability Window</h2>
+    <form method="post" action="{{ url_for('provider.availability') }}">
+      {{ m.csrf() }}
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label>Day of Week</label>
+        <select name="day" required>
+          <option value="">Select day...</option>
+          {% for i in range(7) %}
+          <option value="{{ i }}">{{ DAYS[i] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="time" name="start_time" required>
+        </div>
+        <div class="form-group">
+          <label>End Time</label>
+          <input type="time" name="end_time" required>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Add to Schedule</button>
+    </form>
+    <hr class="divider">
+    <p class="form-hint">Business rule: patients can book only within these windows, and each 30-minute slot can hold one appointment.</p>
+  </div>
+</div>
+{% endblock %}

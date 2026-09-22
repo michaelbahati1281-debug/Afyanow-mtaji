@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <div class="card">
+    <h1>Welcome back</h1>
+    <p class="muted mb">One login for patients, specialists and administrators.</p>
+
+    <form method="post" action="{{ url_for('auth.login') }}">
+      {{ m.csrf() }}
+      <div class="form-group">
+        <label for="identifier">Email / Username / Phone</label>
+        <input type="text" id="identifier" name="identifier" placeholder="you@example.com" autofocus required
+               value="{{ request.form.get('identifier', '') }}">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Your password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+
+    <p class="mt text-center">
+      <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+    </p>
+    <p class="mt text-center muted small">
+      New patient? <a href="{{ url_for('auth.register') }}">Create an account</a>
+    </p>
+
+    <hr class="divider">
+    <p class="muted small text-center">
+      <strong>Demo accounts</strong><br>
+      Patient: patient@example.com / Patient@123<br>
+      Doctor: doctor@example.com / Doctor@123<br>
+      Admin: admin@example.com / Admin@123
+    </p>
+  </div>
+</div>
+{% endblock %}

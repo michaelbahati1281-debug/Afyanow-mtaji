@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Confirmation{% endblock %}
+{% block content %}
+<div class="card text-center" style="max-width:560px;margin:20px auto">
+  <div style="font-size:3rem">&#9989;</div>
+  <h1 style="color:var(--primary-dark);margin:6px 0">Appointment Request Submitted</h1>
+  <p class="muted">Your booking reference is <strong>{{ appointment.booking_code }}</strong>. The specialist will review and respond to your request.</p>
+
+  <hr class="divider">
+  <dl class="detail-list text-left" style="text-align:left">
+    <dt>Service</dt><dd>{{ appointment.service.name }}</dd>
+    <dt>Specialist</dt><dd>{{ appointment.provider.title }} {{ appointment.provider.full_name }}</dd>
+    <dt>Facility</dt><dd>{{ appointment.facility.name }}</dd>
+    <dt>Date</dt><dd>{{ appointment.appointment_date.strftime('%A, %d %b %Y') }}</dd>
+    <dt>Time</dt><dd>{{ appointment.appointment_time }}</dd>
+    <dt>Status</dt><dd>{{ m.status_badge(appointment.status) }}</dd>
+  </dl>
+
+  <div class="mt">
+    <a class="btn btn-primary" href="{{ url_for('patient.appointment_detail', appointment_id=appointment.id) }}">View Appointment</a>
+    <a class="btn btn-outline" href="{{ url_for('patient.my_appointments') }}">My Appointments</a>
+  </div>
+</div>
+{% endblock %}

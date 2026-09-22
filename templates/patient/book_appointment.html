@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Book Appointment{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Book Appointment</h1>
+  <p><a href="javascript:history.back()">&larr; Back</a></p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Booking Summary</h2>
+    <dl class="detail-list">
+      <dt>Service</dt><dd><strong>{{ service.name }}</strong></dd>
+      <dt>Facility</dt><dd>{{ facility.name }}{% if facility.city %} ({{ facility.city }}){% endif %}</dd>
+      <dt>Specialist</dt><dd>{{ provider.title }} {{ provider.full_name }}</dd>
+      <dt>Specialty</dt><dd>{{ provider.speciality.name if provider.speciality else '&mdash;' | safe }}</dd>
+      <dt>Experience</dt><dd>{{ provider.experience_years }} years</dd>
+    </dl>
+
+    <h3 class="section-title">Working Schedule</h3>
+    <table>
+      <thead><tr><th>Day</th><th>Hours</th></tr></thead>
+      <tbody>
+        {% for a in provider.availability %}
+        <tr><td>{{ DAYS[a.day_week] }}</td><td>{{ a.start_time }} &ndash; {{ a.end_time }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title" style="margin-top:0">Select Date &amp; Time</h2>
+    {% if dates %}
+    <p class="form-hint mb">Choose a date, then pick an available time slot below.</p>
+
+    <div data-date-picker data-provider-id="{{ provider.id }}">
+      <div class="calendar-grid mb">
+        {% for d in dates %}
+        <div class="day-chip" data-date="{{ d.isoformat() }}">
+          <strong>{{ d.strftime('%a') }}</strong><br>
+          <span class="small">{{ d.strftime('%d %b') }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div data-time-slots>
+      <p class="muted small">Select a date to see available times.</p>
+    </div>
+
+    <form method="post" action="{{ url_for('patient.create_appointment') }}" class="mt">
+      {{ m.csrf() }}
+      <input type="hidden" name="service_id" value="{{ service.id }}">
+      <input type="hidden" name="facility_id" value="{{ facility.id }}">
+      <input type="hidden" name="provider_id" value="{{ provider.id }}">
+      <input type="hidden" name="appointment_date" data-hidden-date>
+      <input type="hidden" name="appointment_time" data-hidden-time>
+
+      <div class="form-group mt">
+        <label for="reason_for_visit">Reason for Visit</label>
+        <textarea id="reason_for_visit" name="reason_for_visit"
+                  placeholder="Briefly describe your reason for the visit (optional)"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submit-booking">Submit Booking Request</button>
+    </form>
+    {% else %}
+      <p class="muted">No available dates in the next 14 days for this specialist.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

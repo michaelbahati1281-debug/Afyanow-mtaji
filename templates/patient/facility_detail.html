@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ facility.name }} - {{ service.name }}{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>{{ facility.name }}</h1>
+  <p>{{ facility.city or '' }} &middot; {{ facility.address or '' }} &middot; {{ facility.phone or '' }}</p>
+  <p><a href="{{ url_for('patient.service_detail', service_id=service.id) }}">&larr; Back to {{ service.name }}</a></p>
+</div>
+
+<h2 class="section-title">{{ service.name }} Specialists at {{ facility.name }}</h2>
+{% if providers %}
+<div class="grid">
+  {% for p in providers %}
+  <div class="card">
+    <div class="avatar" style="display:inline-flex;margin-bottom:10px">{{ p.full_name[:1] }}</div>
+    <h3>{{ p.title }} {{ p.full_name }}</h3>
+    <p class="small muted">{{ p.speciality.name if p.speciality else 'Specialist' }} &middot; {{ p.experience_years }} years experience</p>
+    <p class="small">Available:
+      {% set days = [] %}
+      {% for a in p.availability %}{% if days.append(DAYS[a.day_week]) %}{% endif %}{% endfor %}
+      {{ days | unique | list | join(', ') or 'Not set' }}
+    </p>
+    <a class="btn btn-primary btn-sm mt" href="{{ url_for('patient.specialist_detail', provider_id=p.id) }}">View Profile</a>
+    <a class="btn btn-outline btn-sm mt" href="{{ url_for('patient.book', service_id=service.id, facility_id=facility.id, provider_id=p.id) }}">Book Appointment</a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty"><div class="big">&#128104;&#8205;&#9877;&#65039;</div><p>No specialists offer {{ service.name }} at this facility.</p></div>
+{% endif %}
+{% endblock %}

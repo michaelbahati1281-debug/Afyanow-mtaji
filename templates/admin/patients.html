@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Patient Management{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Patient Management</h1>
+  <p>Registered patients and their accounts.</p>
+</div>
+
+{% if patients %}
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Gender</th><th>DOB</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for p in patients %}
+      <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.full_name }}</td>
+        <td>{{ p.user.email }}</td>
+        <td>{{ p.user.phone or '&mdash;' | safe }}</td>
+        <td>{{ p.gender or '&mdash;' | safe }}</td>
+        <td>{{ p.date_of_birth.strftime('%d %b %Y') if p.date_of_birth else '&mdash;' | safe }}</td>
+        <td>{% if p.user.is_active %}<span class="status status-accepted">Active</span>{% else %}<span class="status status-declined">Inactive</span>{% endif %}</td>
+        <td>
+          <form class="inline-form" method="post" action="{{ url_for('admin.toggle_user', user_id=p.user_id) }}">
+            {{ m.csrf() }}
+            <button class="btn btn-{{ 'danger' if p.user.is_active else 'success' }} btn-sm" type="submit">
+              {{ 'Deactivate' if p.user.is_active else 'Activate' }}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty"><div class="big">&#128100;</div><p>No patients yet.</p></div>
+{% endif %}
+{% endblock %}
